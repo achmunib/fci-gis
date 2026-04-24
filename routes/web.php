@@ -19,10 +19,9 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::resource('outlets', 'OutletController');
 
 /*
- * Outlets Routes
+ * Public Map Route
  */
 Route::get('/our_outlets', 'OutletMapController@index')->name('outlet_map.index');
-Route::resource('outlets', 'OutletController');
 
 
 Route::get('/opd_data', 'OpdController@index')->name('opd_data');

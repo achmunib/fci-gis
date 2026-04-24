@@ -146,9 +146,9 @@
     var searchLayer = L.layerGroup();
 
         @foreach ($outlets as $data)
-            var opdName = '{!! $data->nama_opd !!}';
-            var outletName = '{!! $data->name !!}';
-            var color = '{!! $data->color !!}';
+            var opdName = {{ json_encode(e($data->nama_opd)) }};
+            var outletName = {{ json_encode(e($data->name)) }};
+            var color = {{ json_encode(in_array($data->color, ['red','blue','green','black','orange','yellow']) ? $data->color : 'gray') }};
 
             if (!overlayMapsOPD[opdName]) {
                 overlayMapsOPD[opdName] = L.layerGroup();
@@ -160,41 +160,25 @@
 
             @if (!empty($data->polygon))
                 var multiPolygonOptions = { color: color, weight: 1 };
-                var polygonData = [
-                    {
-                        layer: overlayMapsOPD[opdName], 
-                        content: 'Data : {{ $data->id }}<br>' +
-                                 '<img src="{{ Storage::url($data->file_photo) }}" alt="Photo" style="max-width: 200px;"><br>' +
-                                 'ID PEMDA : {{ $data->id_pemda }}<br>' +
-                                 'Nama Barang : {{ $data->name }}<br>' +
-                                 'Luas : {{ $data->luas }}<br>' +
-                                 'OPD : {{ $data->nama_opd }}<br>' +
-                                 'SUB OPD : {{ $data->sub_opd }}<br>' +
-                                 'UPT : {{ $data->upt }}<br>' +
-                                 '<a href="{{ route('outlets.show', ['outlet' => $data->id]) }}">Detail Outlet</a>'
-                    },
-                    {
-                        layer: overlayMapsName[outletName],
-                        content: 'Data : {{ $data->id }}<br>' +
-                                 '<img src="{{ Storage::url($data->file_photo) }}" alt="Photo" style="max-width: 200px;"><br>' +
-                                 'ID PEMDA : {{ $data->id_pemda }}<br>' +
-                                 'Nama Barang : {{ $data->name }}<br>' +
-                                 'Luas : {{ $data->luas }}<br>' +
-                                 'OPD : {{ $data->nama_opd }}<br>' +
-                                 'SUB OPD : {{ $data->sub_opd }}<br>' +
-                                 'UPT : {{ $data->upt }}<br>' +
-                                 '<a href="{{ route('outlets.show', ['outlet' => $data->id]) }}">Detail Outlet</a>'
-                    }
-                ];
+                var popupContent = '<strong>Data #{{ (int) $data->id }}</strong><br>' +
+                    '<img src="{{ e(Storage::url($data->file_photo)) }}" alt="Foto Aset" style="max-width:200px;"><br>' +
+                    'ID PEMDA: {{ e($data->id_pemda) }}<br>' +
+                    'Nama Barang: {{ e($data->name) }}<br>' +
+                    'Luas: {{ e($data->luas) }} m&sup2;<br>' +
+                    'OPD: {{ e($data->nama_opd) }}<br>' +
+                    'SUB OPD: {{ e($data->sub_opd) }}<br>' +
+                    'UPT: {{ e($data->upt) }}<br>' +
+                    '<a href="{{ route('outlets.show', ['outlet' => (int) $data->id]) }}">Detail Aset &rarr;</a>';
 
-                polygonData.forEach(function(item) {
-                    var polygon = L.polygon([{!! $data->polygon ?? '[]' !!}], multiPolygonOptions)
-                        .bindPopup(polygonData[0].content)
-                        .addTo(item.layer);
+                var polygonCoords = {!! json_encode($data->polygon ? json_decode($data->polygon) : []) !!};
+                var polygon = L.polygon(polygonCoords, multiPolygonOptions)
+                    .bindPopup(popupContent);
 
-                    polygon.feature = { properties: { name: outletName } };
-                    searchLayer.addLayer(polygon);
-                });
+                polygon.feature = { properties: { name: outletName } };
+
+                overlayMapsOPD[opdName].addLayer(polygon);
+                overlayMapsName[outletName].addLayer(polygon);
+                searchLayer.addLayer(polygon);
             @endif
 
         @endforeach
@@ -282,8 +266,8 @@
         });
 
     var ctx = document.getElementById('myChart').getContext('2d');
-    var labels = {!! json_encode($grafiktotal->pluck('nama_opd')) !!};
-    var dataJumlah = {!! json_encode($grafiktotal->pluck('jumlah')) !!};
+    var labels = {!! json_encode($grafiktotal->pluck('nama_opd')->map(function($v) { return e($v); })) !!};
+    var dataJumlah = {!! json_encode($grafiktotal->pluck('jumlah')->map(function($v) { return (int) $v; })) !!};
     
     var myChart = new Chart(ctx, {
         type: 'bar', // Jenis grafik bisa 'line', 'bar', 'pie', dll.

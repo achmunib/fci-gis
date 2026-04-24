@@ -23,9 +23,9 @@ class OpdController extends Controller
     }
 
      /**
-     * Display the specified outlet.
+     * Display the specified OPD.
      *
-     * @param  \App\Outlet  $outlet
+     * @param  \App\Opd  $opd
      * @return \Illuminate\View\View
      */
 
@@ -38,7 +38,7 @@ class OpdController extends Controller
 
     public function store(Request $request)
     {
-        // $this->authorize('create', new Opd);
+        $this->authorize('manage_outlet');
 
         $newOpd = $request->validate([
             'nama_opd'  => 'required|max:255',
