@@ -1,0 +1,52 @@
+<?php
+
+return [
+    // Labels
+    'outlet'        => 'Data',
+    'list'          => 'Insert Area',
+    'opd'           => 'Data OPD ',
+    'search'        => 'Search Data',
+    'search_text'   => 'Name ...',
+    'all'           => 'All Data',
+    'select'        => 'Select Data',
+    'detail'        => 'Data Detail',
+    'not_found'     => 'Data not found.',
+    'empty'         => 'Data is empty.',
+    'back_to_show'  => 'Back to Data Detail',
+    'back_to_index' => 'Back to Data List',
+
+    // Actions
+    'create'         => 'Create New Data',
+    'create_opd'     => 'Create New OPD',
+    'created'        => 'A new Data has been created.',
+    'show'           => 'View Data Detail',
+    'edit'           => 'Edit Data',
+    'update'         => 'Update Data',
+    'updated'        => 'Data data has been updated.',
+    'delete'         => 'Delete Data',
+    'delete_confirm' => 'Are you sure to delete this Data?',
+    'deleted'        => 'Data has been deleted.',
+    'undeleted'      => 'Data not deleted.',
+    'undeleteable'   => 'Data data cannot be deleted.',
+
+    // Attributes
+    'id_pemda'        => 'ID Pemda',
+    'name'            => 'Nama',
+    'kode_barang'     => 'Kode Barang',
+    'register'        => 'Register',
+    'luas'            => 'Luas',
+    'tahun_pengadaan' => 'Tahun Pengadaan',
+    'penggunaan'      => 'Penggunaan',
+    'harga'           => 'Harga',
+    'address'         => 'Data Address',
+    'keterangan'      => 'Keterangan',
+    'nomor_sertifikat'  => 'No Sertifikat',
+    'tanggal_sertifikat'=> 'Tanggal Sertifikat',
+    'hak'             => 'Status Hak',
+    'polygon'         => 'Data Polygon',
+    'id_opd'          => 'ID OPD',
+    'latitude'        => 'Latitude',
+    'longitude'       => 'Longitude',
+    'location'   => 'Location',
+    'coordinate' => 'Coordinate',
+];
