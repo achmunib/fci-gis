@@ -39,7 +39,7 @@ Route::group(['as' => 'api.', 'namespace' => 'Api'], function () {
     Route::middleware('auth:api')->group(function () {
         // Aset Tanah (Outlets) CRUD
         Route::post('outlets',           'OutletController@store')->name('outlets.store');
-        Route::put('outlets/{outlet}',   'OutletController@update')->name('outlets.update');
+        Route::match(['put', 'post'], 'outlets/{outlet}', 'OutletController@update')->name('outlets.update');
         Route::delete('outlets/{outlet}','OutletController@destroy')->name('outlets.destroy');
 
         // OPD CRUD
