@@ -11,7 +11,7 @@
 
 import type { ApiError } from '$lib/types';
 
-const API_BASE = '/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
 function getToken(): string | null {
 	if (typeof window === 'undefined') return null;

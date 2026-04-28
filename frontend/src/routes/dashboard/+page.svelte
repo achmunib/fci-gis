@@ -10,8 +10,8 @@
 
 	let activeTab = $state<'map' | 'stats' | 'download'>('map');
 	
-	let geojson = $state<GeoJSONCollection | null>(null);
-	let stats = $state<DashboardStats | null>(null);
+	let geojson = $state.raw<GeoJSONCollection | null>(null);
+	let stats = $state.raw<DashboardStats | null>(null);
 	
 	let loading = $state(true);
 	let error = $state<string | null>(null);
@@ -22,10 +22,11 @@
 				getAssetsGeoJSON(),
 				getDashboardStats()
 			]);
-			geojson = geoRes.data;
+			geojson = geoRes;
 			stats = statsRes;
-		} catch (err: any) {
-			error = err.message || 'Gagal memuat data dashboard';
+		} catch (err: unknown) {
+			const msg = err instanceof Error ? err.message : 'Gagal memuat data dashboard';
+			error = msg;
 		} finally {
 			loading = false;
 		}

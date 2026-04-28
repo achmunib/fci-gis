@@ -1,28 +1,39 @@
 <script lang="ts">
+	/* eslint-disable svelte/no-navigation-without-resolve */
 	import { page } from '$app/state';
 	import { onMount, onDestroy } from 'svelte';
 	import { getAsset, deleteAsset } from '$lib/services/asset.service';
-	import type { Outlet } from '$lib/types';
+	import type { Outlet, User } from '$lib/types';
 	import { goto } from '$app/navigation';
+	import { base } from '$app/paths';
 	import { toast } from '$lib/stores/toast';
+	import { getUser } from '$lib/services/auth.service';
 
 	let id = $derived(Number(page.params.id));
 	let asset = $state<Outlet | null>(null);
+	let currentUser = $state<User | null>(null);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 
-	let mapElement: HTMLElement;
-	let map: any;
+	let mapElement = $state<HTMLElement>();
+	let map: import('leaflet').Map | undefined;
+
+	let canEdit = $derived(currentUser && asset && currentUser.id === asset.creator_id);
 
 	onMount(async () => {
 		try {
-			asset = await getAsset(id);
+			const [fetchedAsset, fetchedUser] = await Promise.all([
+				getAsset(id),
+				getUser()
+			]);
+			asset = fetchedAsset;
+			currentUser = fetchedUser;
 			if (asset) {
 				// Wait for DOM to update
 				setTimeout(() => initMap(), 100);
 			}
-		} catch (err: any) {
-			error = err.message || 'Gagal memuat detail aset';
+		} catch (err: unknown) {
+			error = err instanceof Error ? err.message : 'Gagal memuat detail aset';
 			toast.error(error);
 		} finally {
 			loading = false;
@@ -53,7 +64,7 @@
 				const latlngs = JSON.parse(asset.polygon);
 				const polygon = L.polygon(latlngs, { color: '#eab308', weight: 2, fillOpacity: 0.5 }).addTo(map);
 				map.fitBounds(polygon.getBounds(), { padding: [20, 20] });
-			} catch (e) {
+			} catch {
 				console.error('Invalid polygon JSON');
 			}
 		}
@@ -64,9 +75,9 @@
 			try {
 				await deleteAsset(id);
 				toast.success('Aset berhasil dihapus');
-				goto('/assets');
-			} catch (err: any) {
-				toast.error(err.message || 'Gagal menghapus aset');
+				goto(`${base}/assets`);
+			} catch (err: unknown) {
+				toast.error(err instanceof Error ? err.message : 'Gagal menghapus aset');
 			}
 		}
 	}
@@ -79,19 +90,21 @@
 {:else if asset}
 	<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xl);">
 		<div>
-			<a href="/assets" style="color: var(--color-primary); text-decoration: none; display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 14px;">
+			<a href="{base}/assets" style="color: var(--color-primary); text-decoration: none; display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 14px;">
 				<span class="material-icons-outlined" style="font-size: 16px;">arrow_back</span> Kembali
 			</a>
 			<h1 class="page-title" style="font-size: var(--font-size-2xl); font-weight: 700;">{asset.name}</h1>
 			<p class="page-desc" style="color: var(--color-text-muted);">ID Pemda: {asset.id_pemda || '-'}</p>
 		</div>
 		<div style="display: flex; gap: var(--space-sm);">
-			<a href="/assets/{id}/edit" class="btn btn-primary">
-				<span class="material-icons-outlined">edit</span> Edit Aset
-			</a>
-			<button class="btn btn-danger" onclick={handleDelete}>
-				<span class="material-icons-outlined">delete</span> Hapus
-			</button>
+			{#if canEdit}
+				<a href="{base}/assets/{id}/edit" class="btn btn-primary">
+					<span class="material-icons-outlined">edit</span> Edit Aset
+				</a>
+				<button class="btn btn-danger" onclick={handleDelete}>
+					<span class="material-icons-outlined">delete</span> Hapus
+				</button>
+			{/if}
 		</div>
 	</div>
 
@@ -113,7 +126,7 @@
 								['Harga', asset.harga ? 'Rp ' + Number(asset.harga).toLocaleString('id-ID') : '-'],
 								['Alamat', asset.address || '-'],
 								['Keterangan', asset.keterangan || '-']
-							] as [label, val]}
+							] as [label, val] (label)}
 								<tr style="border-bottom: 1px solid var(--color-border);">
 									<td style="padding: 12px 0; color: var(--color-text-secondary); width: 140px;">{label}</td>
 									<td style="padding: 12px 0; font-weight: 500;">{val}</td>

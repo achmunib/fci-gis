@@ -1,10 +1,13 @@
 <script lang="ts">
+	/* eslint-disable svelte/no-navigation-without-resolve */
 	import { onMount } from 'svelte';
 	import { getAssets, deleteAsset } from '$lib/services/asset.service';
-	import type { Outlet, PaginatedResponse } from '$lib/types';
-	import { goto } from '$app/navigation';
+	import type { Outlet } from '$lib/types';
+	import { base } from '$app/paths';
+	import Skeleton from '$lib/components/ui/Skeleton.svelte';
+	import EmptyState from '$lib/components/ui/EmptyState.svelte';
 
-	let assets = $state<Outlet[]>([]);
+	let assets = $state.raw<Outlet[]>([]);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 
@@ -21,8 +24,8 @@
 			assets = res.data;
 			currentPage = res.current_page;
 			totalPages = res.last_page;
-		} catch (err: any) {
-			error = err.message || 'Gagal memuat data aset';
+		} catch (err: unknown) {
+			error = err instanceof Error ? err.message : 'Gagal memuat data aset';
 		} finally {
 			loading = false;
 		}
@@ -42,8 +45,9 @@
 			try {
 				await deleteAsset(id);
 				loadAssets(currentPage);
-			} catch (err: any) {
-				alert(err.message || 'Gagal menghapus aset');
+			} catch (err: unknown) {
+				const msg = err instanceof Error ? err.message : 'Gagal menghapus aset';
+				alert(msg);
 			}
 		}
 	}
@@ -54,7 +58,7 @@
 		<h1 class="page-title" style="font-size: var(--font-size-2xl); font-weight: 700;">Data Aset Tanah</h1>
 		<p class="page-desc" style="color: var(--color-text-muted);">Kelola data aset tanah (tambah, ubah, hapus).</p>
 	</div>
-	<a href="/assets/create" class="btn btn-primary">
+	<a href="{base}/assets/create" class="btn btn-primary">
 		<span class="material-icons-outlined">add</span>
 		Tambah Aset
 	</a>
@@ -105,7 +109,7 @@
 								<td style="padding: var(--space-md);">{asset.luas || '-'}</td>
 								<td style="padding: var(--space-md);">
 									<div style="display: flex; gap: var(--space-sm);">
-										<a href="/assets/{asset.id}" class="btn-icon" title="Detail" style="color: var(--color-primary); background: none; border: none; cursor: pointer;">
+										<a href="{base}/assets/{asset.id}" class="btn-icon" title="Detail" style="color: var(--color-primary); background: none; border: none; cursor: pointer;">
 											<span class="material-icons-outlined">visibility</span>
 										</a>
 										<button onclick={() => handleDelete(asset.id)} class="btn-icon" title="Hapus" style="color: var(--color-danger); background: none; border: none; cursor: pointer;">

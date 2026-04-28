@@ -45,8 +45,7 @@ class OutletPolicy
      */
     public function update(User $user, Outlet $outlet)
     {
-        // Update $user authorization to update $outlet here.
-        return true;
+        return $user->id === $outlet->creator_id;
     }
 
     /**
@@ -58,7 +57,6 @@ class OutletPolicy
      */
     public function delete(User $user, Outlet $outlet)
     {
-        // Update $user authorization to delete $outlet here.
-        return true;
+        return $user->id === $outlet->creator_id;
     }
 }

@@ -1,10 +1,15 @@
 <script lang="ts">
+	import { onDestroy } from 'svelte';
+	import type { Chart } from 'chart.js';
+
+	type ChartData = { nama_opd: string; total: number };
+	
 	let { data } = $props<{
-		data: Array<{ nama_opd: string; total: number }>
+		data: ChartData[]
 	}>();
 
 	let canvas = $state<HTMLCanvasElement | undefined>();
-	let chart: any;
+	let chart: Chart | undefined;
 
 	$effect(() => {
 		if (data && data.length > 0 && canvas && typeof window !== 'undefined') {
@@ -12,19 +17,27 @@
 		}
 	});
 
+	onDestroy(() => {
+		if (chart) {
+			chart.destroy();
+		}
+	});
+
 	async function initChart() {
+		if (!canvas) return;
+		
 		if (chart) {
 			chart.destroy();
 		}
 
 		// Dynamic import to prevent SSR issues with Chart.js
 		const ChartModule = await import('chart.js/auto');
-		const Chart = ChartModule.default;
+		const ChartClass = ChartModule.default;
 
-		const labels = data.map(d => d.nama_opd);
-		const values = data.map(d => d.total);
+		const labels = data.map((d: ChartData) => d.nama_opd);
+		const values = data.map((d: ChartData) => d.total);
 
-		chart = new Chart(canvas, {
+		chart = new ChartClass(canvas, {
 			type: 'bar',
 			data: {
 				labels,

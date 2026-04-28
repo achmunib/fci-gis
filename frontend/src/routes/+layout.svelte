@@ -1,9 +1,13 @@
 <script lang="ts">
+	/* eslint-disable svelte/no-navigation-without-resolve */
 	import '../app.css';
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
+	import { base } from '$app/paths';
 	import { fade } from 'svelte/transition';
 	import ThemeToggle from '$lib/components/ui/ThemeToggle.svelte';
 	import ToastContainer from '$lib/components/ui/ToastContainer.svelte';
+	import { hasToken, logout } from '$lib/services/auth.service';
 
 	let { children } = $props();
 
@@ -18,6 +22,19 @@
 
 	function isActive(href: string): boolean {
 		return currentPath === href || currentPath.startsWith(href + '/');
+	}
+
+	$effect(() => {
+		if (!hasToken() && currentPath !== '/login') {
+			goto(`${base}/login`);
+		} else if (hasToken() && currentPath === '/login') {
+			goto(`${base}/dashboard`);
+		}
+	});
+
+	async function handleLogout() {
+		await logout();
+		goto(`${base}/login`);
 	}
 </script>
 
@@ -46,7 +63,7 @@
 		<nav class="sidebar-nav">
 			{#each navItems as item (item.href)}
 				<a
-					href={item.href}
+					href={`${base}${item.href}`}
 					class="nav-item"
 					class:active={isActive(item.href)}
 					title={item.label}
@@ -60,12 +77,12 @@
 		</nav>
 
 		<div class="sidebar-footer">
-			<a href="/login" class="nav-item" title="Keluar">
+			<button class="nav-item btn-icon" title="Keluar" onclick={handleLogout} style="width: 100%; border: none; background: transparent; text-align: left; cursor: pointer;">
 				<span class="material-icons-outlined nav-icon">logout</span>
 				{#if sidebarOpen}
 					<span class="nav-label">Keluar</span>
 				{/if}
-			</a>
+			</button>
 		</div>
 	</aside>
 
