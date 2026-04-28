@@ -96,6 +96,14 @@ export function apiPost<T>(endpoint: string, body: unknown): Promise<T> {
 }
 
 export function apiPut<T>(endpoint: string, body: unknown): Promise<T> {
+	const isFormData = body instanceof FormData;
+	if (isFormData) {
+		body.append('_method', 'PUT');
+		return apiFetch<T>(endpoint, {
+			method: 'POST',
+			body
+		});
+	}
 	return apiFetch<T>(endpoint, {
 		method: 'PUT',
 		body: JSON.stringify(body)

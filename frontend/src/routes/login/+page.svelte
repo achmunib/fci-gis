@@ -1,3 +1,30 @@
+<script lang="ts">
+	import { login } from '$lib/services/auth.service';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
+
+	let email = $state('');
+	let password = $state('');
+	let loading = $state(false);
+	let errorMsg = $state('');
+
+	async function handleLogin(e: Event) {
+		e.preventDefault();
+		loading = true;
+		errorMsg = '';
+
+		try {
+			await login(email, password);
+			// Redirect to dashboard or where they came from
+			goto('/dashboard');
+		} catch (err: any) {
+			errorMsg = err.message || 'Login gagal. Silakan coba lagi.';
+		} finally {
+			loading = false;
+		}
+	}
+</script>
+
 <h1 class="page-title">Masuk ke SIMANTA</h1>
 
 <div class="login-container">
@@ -8,19 +35,30 @@
 				<span>SIMANTA</span>
 			</div>
 
-			<form class="login-form">
+			<form class="login-form" onsubmit={handleLogin}>
+				{#if errorMsg}
+					<div class="form-error" style="text-align: center; margin-bottom: var(--space-sm); padding: var(--space-sm); background: var(--color-danger-light); border-radius: var(--radius-sm); color: var(--color-danger);">
+						{errorMsg}
+					</div>
+				{/if}
+
 				<div class="form-group">
 					<label class="form-label" for="email">Email</label>
-					<input id="email" type="email" class="form-input" placeholder="email@example.com" />
+					<input id="email" type="email" class="form-input" placeholder="email@example.com" bind:value={email} required />
 				</div>
 
 				<div class="form-group">
 					<label class="form-label" for="password">Password</label>
-					<input id="password" type="password" class="form-input" placeholder="••••••••" />
+					<input id="password" type="password" class="form-input" placeholder="••••••••" bind:value={password} required />
 				</div>
 
-				<button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
-					Masuk
+				<button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;" disabled={loading}>
+					{#if loading}
+						<span class="material-icons-outlined" style="font-size: 1rem; animation: spin 1s linear infinite;">refresh</span>
+						Memproses...
+					{:else}
+						Masuk
+					{/if}
 				</button>
 			</form>
 		</div>

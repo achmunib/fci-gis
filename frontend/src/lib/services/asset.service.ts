@@ -55,7 +55,7 @@ export function createAsset(data: FormData): Promise<Outlet> {
 /**
  * Update asset
  */
-export function updateAsset(id: number, data: Record<string, unknown>): Promise<Outlet> {
+export function updateAsset(id: number, data: Record<string, unknown> | FormData): Promise<Outlet> {
 	return apiPut<Outlet>(`/outlets/${id}`, data);
 }
 

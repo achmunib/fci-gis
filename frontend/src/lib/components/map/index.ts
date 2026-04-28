@@ -1,2 +1,4 @@
-// Barrel export untuk map components
-// Will be populated in Phase 2 (Task 2.1)
+export { default as MapContainer } from './MapContainer.svelte';
+export { default as PolygonLayer } from './PolygonLayer.svelte';
+export { default as LayerControl } from './LayerControl.svelte';
+export { default as SearchControl } from './SearchControl.svelte';

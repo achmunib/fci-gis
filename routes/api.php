@@ -13,8 +13,11 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group(['prefix' => 'auth', 'namespace' => 'Api'], function () {
+    Route::post('login', 'AuthController@login');
+    Route::post('logout', 'AuthController@logout');
+    Route::post('refresh', 'AuthController@refresh');
+    Route::get('user', 'AuthController@user');
 });
 
 Route::group(['as' => 'api.', 'namespace' => 'Api'], function () {
@@ -28,6 +31,7 @@ Route::group(['as' => 'api.', 'namespace' => 'Api'], function () {
     Route::get('opd/all',         'OpdController@all')->name('opd.all');
     Route::get('opd/{id}',        'OpdController@show')->name('opd.show');
     Route::get('opd',             'OpdController@index')->name('opd.index');
+    Route::get('dashboard/stats', 'DashboardController@stats')->name('dashboard.stats');
 
     /*
      * Protected Endpoints (require authentication)

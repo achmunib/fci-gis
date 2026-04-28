@@ -1,6 +1,9 @@
 <script lang="ts">
 	import '../app.css';
 	import { page } from '$app/state';
+	import { fade } from 'svelte/transition';
+	import ThemeToggle from '$lib/components/ui/ThemeToggle.svelte';
+	import ToastContainer from '$lib/components/ui/ToastContainer.svelte';
 
 	let { children } = $props();
 
@@ -17,6 +20,8 @@
 		return currentPath === href || currentPath.startsWith(href + '/');
 	}
 </script>
+
+<ToastContainer />
 
 <div class="app-layout" class:sidebar-collapsed={!sidebarOpen}>
 	<!-- Sidebar -->
@@ -66,7 +71,17 @@
 
 	<!-- Main Content -->
 	<main class="main-content">
-		{@render children()}
+		<header class="top-header">
+			<div class="header-actions">
+				<ThemeToggle />
+			</div>
+		</header>
+		
+		{#key currentPath}
+			<div in:fade={{ duration: 200, delay: 200 }} out:fade={{ duration: 200 }}>
+				{@render children()}
+			</div>
+		{/key}
 	</main>
 </div>
 
@@ -204,6 +219,18 @@
 		padding: var(--space-xl);
 		min-height: 100vh;
 		transition: margin-left var(--transition-slow);
+	}
+	
+	.top-header {
+		display: flex;
+		justify-content: flex-end;
+		margin-bottom: var(--space-md);
+	}
+	
+	.header-actions {
+		display: flex;
+		align-items: center;
+		gap: var(--space-sm);
 	}
 
 	:global(.sidebar-collapsed) .main-content {

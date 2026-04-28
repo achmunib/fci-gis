@@ -14,12 +14,15 @@ class OpdController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Opd::query();
+        $query = Opd::query()
+            ->select('opd.*', \DB::raw('(SELECT count(*) FROM outlets WHERE outlets.id_opd = opd.id_opd) as jumlah_aset'));
 
         if ($search = $request->get('q')) {
-            $query->where('nama_opd', 'like', "%{$search}%")
+            $query->where(function($q) use ($search) {
+                $q->where('nama_opd', 'like', "%{$search}%")
                   ->orWhere('sub_opd', 'like', "%{$search}%")
                   ->orWhere('upt', 'like', "%{$search}%");
+            });
         }
 
         $perPage = min((int) $request->get('per_page', 25), 100);
