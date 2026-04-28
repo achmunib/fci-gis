@@ -14,3 +14,13 @@ yarn-error.log
 .env
 .phpunit.result.cache
 /docs
+/.agents
+/.claude
+/.cursor
+/.gemini
+/.kiro
+.mcp.json
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+boost.json
